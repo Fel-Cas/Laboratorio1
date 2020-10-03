@@ -15,6 +15,11 @@ import static java.lang.Integer.parseInt;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -52,42 +57,106 @@ public class EstudiantesServlet extends HttpServlet {
             String action = request.getParameter("action");
             String url = "Registro.jsp";
             if ("registro".equals(action)) {
-                Estudiante a = new Estudiante();
-                a.setCedula(request.getParameter("cedula"));
-                a.setPrimerNombre(request.getParameter("primer_nombre"));
-                a.setSegundoNombre(request.getParameter("segundo_nombre"));
-                a.setPrimerApellido(request.getParameter("primer_apellido"));
-                a.setSegundoApellido(request.getParameter("segundo_apellido"));
-                a.setCarrera(request.getParameter("carrera"));
-                a.setNombreImagen(request.getParameter("nombre_imagen"));
-                a.setPassword(request.getParameter("password"));
-                estudianteFacade.create(a);
-                url = "Materias.jsp";
+                String ced=request.getParameter("cedula");
+                Estudiante est=estudianteFacade.find(ced);
+                if(est!=null){
+                    String mensaje="El usuario ya existe";
+                    request.getSession().setAttribute("mensaje",mensaje);
+                    url="Registro.jsp";
+                }else{
+                    Estudiante a = new Estudiante();
+                    a.setCedula(request.getParameter("cedula"));
+                    a.setPrimerNombre(request.getParameter("primer_nombre"));
+                    a.setSegundoNombre(request.getParameter("segundo_nombre"));
+                    a.setPrimerApellido(request.getParameter("primer_apellido"));
+                    a.setSegundoApellido(request.getParameter("segundo_apellido"));
+                    a.setCarrera(request.getParameter("carrera"));
+                    a.setNombreImagen(request.getParameter("nombre_imagen"));
+                    a.setPassword(request.getParameter("password"));
+                    estudianteFacade.create(a);
+                    url = "Materias.jsp"; 
+                }
+                
             }else if("busqueda".equals(action)){
+                
                 String entrada=request.getParameter("entrada");
                 System.out.println(entrada);
-                 Estudiante a= estudianteFacade.find(entrada);
-                 request.getSession().setAttribute("usuario",a);
+                Estudiante a= estudianteFacade.find(entrada);                 
+                if(a==null){
+                    String mensaje="El usuario no existe";
+                    request.getSession().setAttribute("mensaje",mensaje);
+                }else{
+                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("RegistrosEstudiantesPU");
+                    EntityManager em = emf.createEntityManager();
+                 //TypedQuery<Materia> consultaMaterias= em.createNamedQuery("Materia.findByCedulaEstudiante", Materia.class);
+                 //consultaMaterias.setParameter("cedulaEstudiante",entrada.toString());
+                 //List<Materia> lista= consultaMaterias.getResultList();
+                    TypedQuery<Materia> query =em.createQuery("SELECT m FROM Materia m WHERE m.cedulaEstudiante='"+entrada+"'", Materia.class);
+                    List<Materia> lista = query.getResultList();
+                    request.getSession().setAttribute("usuario",a);
+                    request.getSession().setAttribute("materias",lista);
+                }                
                 url="Busqueda.jsp";
             }else if("registroMaterias".equals(action)){
-                String[] materias = request.getParameterValues("materia");
                 String cedula=request.getParameter("cedula");
-                String[] codigos=new String[]{"2508111","2508102","2508107"};
-                String[] nom=new String[]{"Matemáticas Discretas I","Intro a la Ing de Sistema","Logica y Representación I"};
-                for(int i=0;i<materias.length;i++){
-                    String cod=materias[i];
-                    for(int j=0;j<codigos.length;j++){
-                        if(cod.equals(codigos[j])){
-                            Materia a=new Materia();
-                            a.setCedulaEstudiante(cedula);
-                            a.setCodigo(cod);
-                            a.setCreditos("4");
-                            a.setNombre(nom[j]);
-                           materiaFacade.create(a);
+                Estudiante est= estudianteFacade.find(cedula);
+                if(est==null){
+                    String mensaje="El usuario no existe";
+                    request.getSession().setAttribute("mensaje",mensaje);
+                    url="Materias.jsp";
+                }else{
+                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("RegistrosEstudiantesPU");
+                    EntityManager em = emf.createEntityManager();
+                    TypedQuery<Materia> query =em.createQuery("SELECT m FROM Materia m WHERE m.cedulaEstudiante='"+cedula+"'", Materia.class);
+                    List<Materia> lista = query.getResultList();
+                   String[] materias = request.getParameterValues("materia");
+                   if(lista.size()==materias.length){
+                        String mensaje="El estudiante ya tiene matriculadas todas las materias";
+                        request.getSession().setAttribute("mensaje",mensaje);
+                        url="Materias.jsp";
+                   }else{
+                        ArrayList<String>codigos=new ArrayList<>();
+                        codigos.add("2508111");
+                        codigos.add("2508102");
+                        codigos.add("2508107");
+                        ArrayList<String>nom=new ArrayList<>();
+                        nom.add("Matemáticas Discretas I");
+                        nom.add("Intro a la Ing de Sistema");
+                        nom.add("Logica y Representación I");
+                        for(int i=0;i<lista.size();i++){
+                            Materia aux=lista.get(i);
+                            for(int k=0;k<codigos.size();k++){
+                                if(codigos.get(k).equals(aux.getCodigo())){
+                                    nom.remove(k);
+                                    codigos.remove(k);
+                                }
+                            }
                         }
-                    }
+                        if(codigos.size()!=0){
+                            for(int j=0;j<materias.length;j++){
+                                String aux=materias[j];
+                                for(int i=0;i<codigos.size();i++){
+                                    if(aux.equals(codigos.get(i))){
+                                        Materia a=new Materia();
+                                        a.setCedulaEstudiante(cedula);
+                                        a.setCodigo(codigos.get(i));
+                                        a.setCreditos("4");
+                                        a.setNombre(nom.get(i));
+                                        materiaFacade.create(a);
+                                    }                                    
+                                }
+                            }
+                            url="Busqueda.jsp";
+                        }else{
+                            String mensaje="El estudiante ya tiene matriculadas esas materias";
+                            request.getSession().setAttribute("mensaje",mensaje);
+                            url="Materias.jsp";
+                        }                       
+                        
+                    }                   
                 }
-                url="Busqueda.jsp";
+                
+                
             }
             response.sendRedirect(url);
         } finally {

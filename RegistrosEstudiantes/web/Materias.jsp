@@ -12,6 +12,12 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Materias</title>
         <style>
+            body{
+            padding:1%;
+            margin:33px;
+            font-size:130%;
+
+          }
             table{
                 padding:1.3%;
                 font-family:"Bradley Hand", cursive Arial;
@@ -39,14 +45,51 @@
               form,h1{
                   text-align: center;
               }
-           
+              #error,#errorU{
+                  color:red;
+                  font-size: 140%;
+                  text-align: center;
+              }
+              nav{
+            background:#42E72D;
+            height:90px;
+          }
+          nav ul li{
+            display:inline-block;
+            width:20%;
+            background:#f45;
+            text-align:center;
+            margin-right:4%;
+            margin-top:3%;
+            transition:padding 2s ease, opacity 2s linear;
+            opacity:.7;
+            background:#fff;
+          }
+          nav ul li:hover{
+            padding:.5%;
+            opacity:1;
+          }
+          a{  
+            text-decoration:none;
+            color:#000;
+            width:100%;
+            display: block;
+          }
 
         </style>
     </head>
     <body>
+        <nav>
+            <ul>
+              <li><a href="index.jsp">Home</a></li>
+              <li><a href="Registro.jsp">Registrar</a></li>
+              <li><a href="Busqueda.jsp">Buscar</a></li>
+              <li><a href="Matricula.jsp">Matricular Materias</a></li>
+            </ul>
+        </nav>
         <h1>Registrar Materias</h1>
         <div>
-           <form action="EstudiantesServlet?action=registroMaterias" method="post">
+           <form action="EstudiantesServlet?action=registroMaterias"  method="post" onsubmit="return Validacion()">
             <table>
               <thead>
                 <caption>
@@ -69,7 +112,7 @@
                 <tr>
                     <td><input type="checkBox" id="intro" name="materia" value="2508102"></td>
                   <td><label for="intro">Intro a la Ing de Sistema</label></td>
-                  <td>2</td>
+                  <td>4</td>
                   <td>2508102</td>
                 </tr>
                 <tr>
@@ -82,12 +125,43 @@
             </table>
                <br>
                <label> Cedula Estudiante</label>
-               <input type="number"name="cedula" required="">
+               <input type="number"name="cedula" id="cedula" required="" >
                <br>
                <br>
                <input type="submit" value="Registrar Materias">
             </form>
+            <p id="error"></p>
         </div>
-    
+        <c:if test="${not empty mensaje}">
+                <p id="errorU">${mensaje}</p>            
+        </c:if> 
+        <script>
+            function Validacion(){
+                let entrada=document.getElementsByName("materia");
+                let cedula=document.getElementById("cedula").value;
+                var num=0;
+                for(let i=0;i<entrada.length;i++){
+                       if(entrada[i].checked){
+                       num+=1;
+                    }
+                }
+                var salida=""
+                let validacion=true;
+                if(num==0){
+                  salida="Debe seleccionar por lo menos una materia."+"<br>";
+                  validacion=false;
+                }
+                if(cedula.length>20 || cedula.length<1 ){
+                    salida+="La cedula debe tener menos de 20 caracteres y minimo 1";
+                    validacion=false;
+                }
+                if(!validacion){
+                    let documento=document.getElementById("error");
+                    documento.innerHTML=salida;
+                }
+                return validacion;
+            }
+            
+        </script>
     </body>
 </html>
