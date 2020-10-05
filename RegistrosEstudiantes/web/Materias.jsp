@@ -84,12 +84,12 @@
               <li><a href="index.jsp">Home</a></li>
               <li><a href="Registro.jsp">Registrar</a></li>
               <li><a href="Busqueda.jsp">Buscar</a></li>
-              <li><a href="Matricula.jsp">Matricular Materias</a></li>
+              <li><a href="Materias.jsp">Matricular Materias</a></li>
             </ul>
         </nav>
         <h1>Registrar Materias</h1>
         <div>
-           <form action="EstudiantesServlet?action=registroMaterias"  method="post" onsubmit="return Validacion()">
+           <form action="RegistroServlet?action=registroMaterias"  method="post" onsubmit="return Validacion()">
             <table>
               <thead>
                 <caption>

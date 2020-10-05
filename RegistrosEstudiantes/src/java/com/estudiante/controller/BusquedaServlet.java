@@ -11,17 +11,14 @@ import com.estudiante.modelo.Estudiante;
 import com.estudiante.modelo.Materia;
 import java.io.IOException;
 import java.io.PrintWriter;
-import static java.lang.Integer.parseInt;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author andres
  */
-@WebServlet(name = "EstudiantesServlet", urlPatterns = {"/EstudiantesServlet"})
-public class EstudiantesServlet extends HttpServlet {
+@WebServlet(name = "BusquedaServlet", urlPatterns = {"/BusquedaServlet"})
+public class BusquedaServlet extends HttpServlet {
 
     @EJB
     private MateriaFacadeLocal materiaFacade;
@@ -53,34 +50,35 @@ public class EstudiantesServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
+         PrintWriter out = response.getWriter();
         String mensaje=null;
-        try {
+        Estudiante a=null;
+        List<Materia> lista=null;
+         try {
+            
             String action = request.getParameter("action");
-            String url = "Registro.jsp";
-            if ("registro".equals(action)) {
-                String ced=request.getParameter("cedula");
-                Estudiante est=estudianteFacade.find(ced);
-                if(est!=null){
-                    mensaje="El usuario ya existe";
-                    
-                    url="Registro.jsp";
+            String url = "index.jsp";
+            if("busqueda".equals(action)){
+                 String entrada=request.getParameter("entrada");
+                System.out.println(entrada);
+                a= estudianteFacade.find(entrada);                 
+                if(a==null){
+                     mensaje="El usuario no existe";
                 }else{
-                    Estudiante a = new Estudiante();
-                    a.setCedula(request.getParameter("cedula"));
-                    a.setPrimerNombre(request.getParameter("primer_nombre"));
-                    a.setSegundoNombre(request.getParameter("segundo_nombre"));
-                    a.setPrimerApellido(request.getParameter("primer_apellido"));
-                    a.setSegundoApellido(request.getParameter("segundo_apellido"));
-                    a.setCarrera(request.getParameter("carrera"));
-                    a.setNombreImagen(request.getParameter("nombre_imagen"));
-                    a.setPassword(request.getParameter("password"));
-                    estudianteFacade.create(a);
-                    url = "Materias.jsp"; 
-                }   
-                            
-            }
-            request.getSession().setAttribute("mensaje",mensaje);
+                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("RegistrosEstudiantesPU");
+                    EntityManager em = emf.createEntityManager();
+                 //TypedQuery<Materia> consultaMaterias= em.createNamedQuery("Materia.findByCedulaEstudiante", Materia.class);
+                 //consultaMaterias.setParameter("cedulaEstudiante",entrada.toString());
+                 //List<Materia> lista= consultaMaterias.getResultList();
+                    TypedQuery<Materia> query =em.createQuery("SELECT m FROM Materia m WHERE m.cedulaEstudiante='"+entrada+"'", Materia.class);
+                    lista = query.getResultList();
+                    
+                }                
+                url="Busqueda.jsp";
+            }         
+            request.getSession().setAttribute("usuario",a);
+            request.getSession().setAttribute("materias",lista);
+            request.getSession().setAttribute("mensaje",mensaje);   
             response.sendRedirect(url);
         } finally {
             out.close();

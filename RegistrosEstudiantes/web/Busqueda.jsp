@@ -85,12 +85,12 @@
               <li><a href="index.jsp">Home</a></li>
               <li><a href="Registro.jsp">Registrar</a></li>
               <li><a href="Busqueda.jsp">Buscar</a></li>
-              <li><a href="Matricula.jsp">Matricular Materias</a></li>
+              <li><a href="Materias.jsp">Matricular Materias</a></li>
             </ul>
         </nav>
         <h1>Busca a un Estudiante</h1>
         <div align="center">
-            <form action="EstudiantesServlet?action=busqueda" method="post" onsubmit="return validacion()">
+            <form action="BusquedaServlet?action=busqueda" method="post" onsubmit="return validacion()">
                 <table>
                     <tr>
                         <th><label><b>Ingrese numero de Cedula</b></label></th>

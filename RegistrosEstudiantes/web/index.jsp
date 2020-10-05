@@ -62,7 +62,7 @@
               <li><a href="index.jsp">Home</a></li>
               <li><a href="Registro.jsp">Registrar</a></li>
               <li><a href="Busqueda.jsp">Buscar</a></li>
-              <li><a href="Matricula.jsp">Matricular Materias</a></li>
+              <li><a href="Materias.jsp">Matricular Materias</a></li>
             </ul>
         </nav>
 
