@@ -101,7 +101,7 @@
                         <tr>
                             <th><label><b>Segundo Nombre:</b></label></th>
                             <th>
-                                <input type="text" placeholder="Entre Segundo Nombre" class="form-control" name="segundo_nombre" id="segundo_nombre" required=""/>
+                                <input type="text" placeholder="Entre Segundo Nombre" class="form-control" name="segundo_nombre" id="segundo_nombre" />
                             </th>
                         </tr>
                         <tr>
@@ -125,7 +125,7 @@
                         <tr>
                             <th><label><b>Nombre Imagen</b></label></th>
                             <th>
-                                <input type="text" placeholder="Entre  Nombre Imagen" class="form-control" name="nombre_imagen" id="nombre_imagen" required=""/>
+                                <input type="text" placeholder="Entre  Nombre Imagen" class="form-control" name="nombre_imagen" id="nombre_imagen" />
                             </th>
                         </tr>
                         <tr>
