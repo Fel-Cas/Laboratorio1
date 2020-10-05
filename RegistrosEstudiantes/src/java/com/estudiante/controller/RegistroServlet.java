@@ -68,7 +68,7 @@ public class RegistroServlet extends HttpServlet {
                     TypedQuery<Materia> query =em.createQuery("SELECT m FROM Materia m WHERE m.cedulaEstudiante='"+cedula+"'", Materia.class);
                     List<Materia> lista = query.getResultList();
                    String[] materias = request.getParameterValues("materia");
-                   if(lista.size()==materias.length){
+                   if(lista.size()==3){
                         mensaje="El estudiante ya tiene matriculadas todas las materias";
                         url="Materias.jsp";
                    }else{

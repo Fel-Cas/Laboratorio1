@@ -24,12 +24,12 @@
             color:#2B891F;
           }
           nav{
-            background:#42E72D;
+            background:#14612c;
             height:90px;
           }
           nav ul li{
             display:inline-block;
-            width:20%;
+            width:15%;
             background:#f45;
             text-align:center;
             margin-right:4%;
@@ -63,6 +63,7 @@
               <li><a href="Registro.jsp">Registrar</a></li>
               <li><a href="Busqueda.jsp">Buscar</a></li>
               <li><a href="Materias.jsp">Matricular Materias</a></li>
+              <li><a href="Login.jsp">Iniciar Sesion</a></li>
             </ul>
         </nav>
 
