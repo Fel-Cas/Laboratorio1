@@ -32,8 +32,9 @@
             table{
                 position:relative;
                 left:34%;
-                border:2px black solid;
-                background:#91E6F2;
+                border: 2px #14612c solid;
+                border-radius: 10px;
+                background: #aad8b3;
             }
             tr,th{
                 border:2px solid blak;

@@ -26,8 +26,9 @@
             table{
                 position:relative;
                 left:34%;
-                border:2px black solid;
-                background:#91E6F2;
+                border: 2px #14612c solid;
+                border-radius: 10px;
+                background: #aad8b3;
                 font-size: 120%;
             }
             tr,th{
@@ -44,7 +45,7 @@
             section{
                 display: block;
                 text-align: center;
-                font-size: 100%;
+                font-size: 80%;
                 border: solid 2px black;
                 border-radius: 23px 23px;
                 width: 50%;
