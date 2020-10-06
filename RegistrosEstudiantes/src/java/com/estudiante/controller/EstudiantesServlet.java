@@ -9,6 +9,7 @@ import com.estudiante.ejb.EstudianteFacadeLocal;
 import com.estudiante.ejb.MateriaFacadeLocal;
 import com.estudiante.modelo.Estudiante;
 import com.estudiante.modelo.Materia;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import static java.lang.Integer.parseInt;
@@ -26,6 +27,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 /**
  *
@@ -40,6 +44,9 @@ public class EstudiantesServlet extends HttpServlet {
     @EJB
     private EstudianteFacadeLocal estudianteFacade;
 
+    private static final long serialVersionUID = 1L;
+    private final String UPLOAD_DIRECTORY = "Img";
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -49,38 +56,86 @@ public class EstudiantesServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String mensaje=null;
+        String mensaje = null;
         try {
             String action = request.getParameter("action");
             String url = "Registro.jsp";
             if ("registro".equals(action)) {
-                String ced=request.getParameter("cedula");
-                Estudiante est=estudianteFacade.find(ced);
-                if(est!=null){
-                    mensaje="El usuario ya existe";
-                    
-                    url="Registro.jsp";
-                }else{
-                    Estudiante a = new Estudiante();
-                    a.setCedula(request.getParameter("cedula"));
-                    a.setPrimerNombre(request.getParameter("primer_nombre"));
-                    a.setSegundoNombre(request.getParameter("segundo_nombre"));
-                    a.setPrimerApellido(request.getParameter("primer_apellido"));
-                    a.setSegundoApellido(request.getParameter("segundo_apellido"));
-                    a.setCarrera(request.getParameter("carrera"));
-                    a.setNombreImagen(request.getParameter("nombre_imagen"));
-                    a.setPassword(request.getParameter("password"));
+                String cedula = null;
+                String primerNombre = null;
+                String segundoNombre = null;
+                String primerApellido = null;
+                String segundoApellido = null;
+                String carrera = null;
+                String password = null;
+                String nombreImagen = null;
+
+                if (ServletFileUpload.isMultipartContent(request)) {
+                    try {
+                        String fname = null;
+                        String fsize = null;
+                        String ftype = null;
+
+                        int cont = 0;
+                        List<FileItem> multiparts = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+                        for (FileItem item : multiparts) {
+                            cont += 1;
+                            if (!item.isFormField()) {
+                                fname = new File(item.getName()).getName();
+                                fsize = new Long(item.getSize()).toString();
+                                ftype = item.getContentType();
+                                item.write(new File(UPLOAD_DIRECTORY + File.separator + fname));
+                                nombreImagen = fname;
+                            } else {
+                                if (cont == 1) {
+                                    cedula = item.getString();
+                                } else if (cont == 2) {
+                                    primerNombre = item.getString();
+                                } else if (cont == 3) {
+                                    segundoNombre = item.getString();
+                                } else if (cont == 4) {
+                                    primerApellido = item.getString();
+                                } else if (cont == 5) {
+                                    segundoApellido = item.getString();
+                                } else if (cont == 6) {
+                                    carrera = item.getString();
+                                } else if (cont == 7) {
+                                    password = item.getString();
+                                }
+                            }
+                        }
+                        //File uploaded successfully
+                    } catch (Exception ex) {
+                        request.setAttribute("message", "File Upload Failed due to " + ex);
+                    }
+
+                }
+                Estudiante a = new Estudiante();
+                a = estudianteFacade.find(cedula);
+                if (a != null) {
+                    mensaje = "El estudiante ya existe";
+                    url = "Registro.jsp";
+                } else {
+                    a.setCedula(cedula);
+                    a.setPrimerNombre(primerNombre);
+                    a.setSegundoNombre(segundoNombre);
+                    a.setPrimerApellido(primerApellido);
+                    a.setSegundoApellido(segundoApellido);
+                    a.setCarrera(carrera);
+                    a.setNombreImagen(nombreImagen);
+                    a.setPassword(password);
                     estudianteFacade.create(a);
-                    url = "Materias.jsp"; 
-                }   
-                            
+                    url = "Materias.jsp";
+                }
+
+                
             }
-            request.getSession().setAttribute("mensaje",mensaje);
+
+            request.getSession().setAttribute("mensaje", mensaje);
             response.sendRedirect(url);
         } finally {
             out.close();
